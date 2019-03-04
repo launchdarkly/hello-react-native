@@ -1,0 +1,6 @@
+framework module LaunchdarklyReactNativeClient {
+  umbrella header "LaunchdarklyReactNativeClient-umbrella.h"
+
+  export *
+  module * { export * }
+}
