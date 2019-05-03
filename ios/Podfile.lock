@@ -11,7 +11,7 @@ PODS:
     - LaunchDarkly/Core (= 3.0.0-beta.3)
   - LaunchDarkly/Core (3.0.0-beta.3):
     - DarklyEventSource (~> 4.0.1)
-  - LaunchdarklyReactNativeClient (1.0.0):
+  - LaunchdarklyReactNativeClient (1.0.1):
     - LaunchDarkly (~> 3.0.0-beta.3)
     - React
   - React (0.57.7):
@@ -67,8 +67,8 @@ DEPENDENCIES:
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
   - Folly (from `../node_modules/react-native/third-party-podspecs/Folly.podspec`)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
-  - LaunchDarkly (from `https://github.com/launchdarkly/ios-client.git`, tag `3.0.0-beta.3`)
-  - LaunchdarklyReactNativeClient (from `../node_modules/launchdarkly-react-native-client/ios/`)
+  - LaunchDarkly (from `https://github.com/launchdarkly/ios-client-sdk.git`, tag `3.0.0-beta.3`)
+  - LaunchdarklyReactNativeClient (from `../node_modules/launchdarkly-react-native-client-sdk/ios/`)
   - React/Core (from `../node_modules/react-native`)
   - React/CxxBridge (from `../node_modules/react-native`)
   - React/DevSupport (from `../node_modules/react-native`)
@@ -97,10 +97,10 @@ EXTERNAL SOURCES:
   glog:
     :podspec: "../node_modules/react-native/third-party-podspecs/glog.podspec"
   LaunchDarkly:
-    :git: https://github.com/launchdarkly/ios-client.git
+    :git: https://github.com/launchdarkly/ios-client-sdk.git
     :tag: 3.0.0-beta.3
   LaunchdarklyReactNativeClient:
-    :path: "../node_modules/launchdarkly-react-native-client/ios/"
+    :path: "../node_modules/launchdarkly-react-native-client-sdk/ios/"
   React:
     :path: "../node_modules/react-native"
   yoga:
@@ -108,7 +108,7 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   LaunchDarkly:
-    :git: https://github.com/launchdarkly/ios-client.git
+    :git: https://github.com/launchdarkly/ios-client-sdk.git
     :tag: 3.0.0-beta.3
 
 SPEC CHECKSUMS:
@@ -118,10 +118,10 @@ SPEC CHECKSUMS:
   Folly: c89ac2d5c6ab169cd7397ef27485c44f35f742c7
   glog: e8acf0ebbf99759d3ff18c86c292a5898282dcde
   LaunchDarkly: f63faebdf57031484cd0c2eb311b06df3dba4c9a
-  LaunchdarklyReactNativeClient: 87b225024fe34b850cb53f606b0d8478bc1da279
+  LaunchdarklyReactNativeClient: 5040c8ef32276ca921a5f19d53e17861bbda8cd1
   React: 67899bbb285ceb9b4ee1c88b3991602ba5772ad2
   yoga: 192d724e53380b783e09b7d687a55cd8ed5188be
 
-PODFILE CHECKSUM: 21dcf3225725af3c019d7e70a10564e3327c1682
+PODFILE CHECKSUM: 5381f97908fb119d79d15297606c4f24651df0c7
 
 COCOAPODS: 1.6.1
