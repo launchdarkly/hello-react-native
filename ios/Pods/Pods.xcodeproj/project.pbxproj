@@ -3001,7 +3001,7 @@
 				6F7270BC1F97AFDECB4608EE79DB843C /* Support Files */,
 			);
 			name = LaunchdarklyReactNativeClient;
-			path = "../../node_modules/launchdarkly-react-native-client/ios";
+			path = "../../node_modules/launchdarkly-react-native-client-sdk/ios";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

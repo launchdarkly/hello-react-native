@@ -5,7 +5,7 @@ platform :ios, '9.0'
 
 target 'HelloReactNative' do
   rn_path = '../node_modules/react-native'
-  rn_darkly_path = '../node_modules/launchdarkly-react-native-client/ios/'
+  rn_darkly_path = '../node_modules/launchdarkly-react-native-client-sdk/ios/'
 
   pod 'yoga', path: "#{rn_path}/ReactCommon/yoga/yoga.podspec"
   pod 'React', path: rn_path, subspecs: [
@@ -29,9 +29,9 @@ target 'HelloReactNative' do
   pod 'glog', :podspec => "#{rn_path}/third-party-podspecs/glog.podspec"
   pod 'Folly', :podspec => "#{rn_path}/third-party-podspecs/Folly.podspec"
 
-  #launchdarkly-react-native-client dependencies
+  #launchdarkly-react-native-client-sdk dependencies
 
-  pod 'LaunchDarkly', :git => 'https://github.com/launchdarkly/ios-client.git', :tag => '3.0.0-beta.3'
+  pod 'LaunchDarkly', :git => 'https://github.com/launchdarkly/ios-client-sdk.git', :tag => '3.0.0-beta.3'
   
   pod 'LaunchdarklyReactNativeClient', path: rn_darkly_path
 

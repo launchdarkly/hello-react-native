@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View,
          Button, TextInput, Picker,
          Alert, Switch, Platform } from 'react-native';
-import LDClient from 'launchdarkly-react-native-client';
+import LDClient from 'launchdarkly-react-native-client-sdk';
 
 export default class App extends React.Component {
   constructor(props) {
