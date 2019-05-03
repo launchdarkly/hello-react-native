@@ -1,5 +1,5 @@
 rootProject.name = 'HelloReactNative'
-include ':launchdarkly-react-native-client'
-project(':launchdarkly-react-native-client').projectDir = new File(rootProject.projectDir, '../node_modules/launchdarkly-react-native-client/android')
+include ':launchdarkly-react-native-client-sdk'
+project(':launchdarkly-react-native-client-sdk').projectDir = new File(rootProject.projectDir, '../node_modules/launchdarkly-react-native-client-sdk/android')
 
 include ':app'
