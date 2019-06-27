@@ -39,27 +39,27 @@ enum OperatingSystem: String {
     }
 }
 
-//sourcery: AutoMockable
+//sourcery: autoMockable
 protocol EnvironmentReporting {
-    //sourcery: DefaultMockValue = true
+    //sourcery: defaultMockValue = true
     var isDebugBuild: Bool { get }
-    //sourcery: DefaultMockValue = Constants.deviceModel
+    //sourcery: defaultMockValue = Constants.deviceModel
     var deviceModel: String { get }
-    //sourcery: DefaultMockValue = Constants.systemVersion
+    //sourcery: defaultMockValue = Constants.systemVersion
     var systemVersion: String { get }
-    //sourcery: DefaultMockValue = Constants.systemName
+    //sourcery: defaultMockValue = Constants.systemName
     var systemName: String { get }
-    //sourcery: DefaultMockValue = .iOS
+    //sourcery: defaultMockValue = .iOS
     var operatingSystem: OperatingSystem { get }
-    // the code generator is not generating the default, not sure why not //sourcery: DefaultMockValue = .UIApplicationDidEnterBackground
+    // the code generator is not generating the default, not sure why not //sourcery: defaultMockValue = .UIApplicationDidEnterBackground
     var backgroundNotification: Notification.Name? { get }
-    // the code generator is not generating the default, not sure why not //sourcery: DefaultMockValue = .UIApplicationWillEnterForeground
+    // the code generator is not generating the default, not sure why not //sourcery: defaultMockValue = .UIApplicationWillEnterForeground
     var foregroundNotification: Notification.Name? { get }
-    //sourcery: DefaultMockValue = Constants.vendorUUID
+    //sourcery: defaultMockValue = Constants.vendorUUID
     var vendorUUID: String? { get }
-    //sourcery: DefaultMockValue = Constants.sdkVersion
+    //sourcery: defaultMockValue = Constants.sdkVersion
     var sdkVersion: String { get }
-    //sourcery: DefaultMockValue = true
+    //sourcery: defaultMockValue = true
     var shouldThrottleOnlineCalls: Bool { get }
 }
 
@@ -74,8 +74,31 @@ struct EnvironmentReporter: EnvironmentReporting {
     }
     #endif
 
-    #if os(iOS)
+    struct Constants {
+        fileprivate static let simulatorModelIdentifier = "SIMULATOR_MODEL_IDENTIFIER"
+    }
+
     var deviceModel: String {
+        #if os(OSX)
+        return Sysctl.model
+        #else
+        //Obtaining the device model from https://stackoverflow.com/questions/26028918/how-to-determine-the-current-iphone-device-model answer by Jens Schwarzer
+        if let simulatorModelIdentifier = ProcessInfo().environment[Constants.simulatorModelIdentifier] {
+            return simulatorModelIdentifier
+        }
+        //the physical device code here is not automatically testable. Manual testing on physical devices is required.
+        var systemInfo = utsname()
+        _ = uname(&systemInfo)
+        guard let deviceModel = String(bytes: Data(bytes: &systemInfo.machine, count: Int(_SYS_NAMELEN)), encoding: .ascii)
+        else {
+            return deviceType
+        }
+        return deviceModel.trimmingCharacters(in: .controlCharacters)
+        #endif
+    }
+
+    #if os(iOS)
+    var deviceType: String {
         return UIDevice.current.model
     }
     var systemVersion: String {
@@ -97,7 +120,7 @@ struct EnvironmentReporter: EnvironmentReporting {
         return UIDevice.current.identifierForVendor?.uuidString
     }
     #elseif os(watchOS)
-    var deviceModel: String {
+    var deviceType: String {
         return WKInterfaceDevice.current().model
     }
     var systemVersion: String {
@@ -119,7 +142,7 @@ struct EnvironmentReporter: EnvironmentReporting {
         return nil
     }
     #elseif os(OSX)
-    var deviceModel: String {
+    var deviceType: String {
         return Sysctl.modelWithoutVersion
     }
     var systemVersion: String {
@@ -141,7 +164,7 @@ struct EnvironmentReporter: EnvironmentReporting {
         return nil
     }
     #elseif os(tvOS)
-    var deviceModel: String {
+    var deviceType: String {
         return UIDevice.current.model
     }
     var systemVersion: String {
@@ -175,7 +198,7 @@ struct EnvironmentReporter: EnvironmentReporting {
     #endif
 
     var sdkVersion: String {
-        return Bundle(for: LDClient.self).infoDictionary?["CFBundleShortVersionString"] as? String ?? "3.x"
+        return Bundle(for: LDClient.self).infoDictionary?["CFBundleShortVersionString"] as? String ?? "4.x"
     }
 }
 

@@ -1,6 +1,6 @@
 {
   "name": "LaunchdarklyReactNativeClient",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "summary": "LaunchdarklyReactNativeClient",
   "description": "LaunchdarklyReactNativeClient",
   "homepage": "https://launchdarkly.com",
@@ -19,13 +19,14 @@
     "tag": "master"
   },
   "source_files": "**/*.{h,m,swift}",
-  "swift_version": "3.0",
+  "swift_versions": "5.0",
   "dependencies": {
     "React": [
 
     ],
     "LaunchDarkly": [
-      "~> 3.0.0-beta.3"
+      "4.1.0"
     ]
-  }
+  },
+  "swift_version": "5.0"
 }
