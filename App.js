@@ -1,7 +1,8 @@
 import React from 'react';
 import { StyleSheet, Text, View,
          Button, TextInput, Picker,
-         Alert, Switch, Platform } from 'react-native';
+         Alert, Switch, Platform,
+         Modal, TouchableHighlight } from 'react-native';
 import LDClient from 'launchdarkly-react-native-client-sdk';
 
 export default class App extends React.Component {
@@ -14,6 +15,8 @@ export default class App extends React.Component {
       isOffline: false,
       userKey: 'user key',
       featureFlagListenerKey: '',
+      modalVisible: false,
+      modalText: "",
       listeners: {}
     };
   }
@@ -70,6 +73,19 @@ export default class App extends React.Component {
   async track() {
     this.state.ldClient.track(this.state.flagKey, false);
   }
+
+  async allFlags() {
+    let allFlagsResult = this.state.ldClient.allFlags();
+    allFlagsResult.then(values => { 
+      console.log(values);
+      this.setState({ modalText: values });
+    });
+    this.toggleModal(true);
+  }
+
+  toggleModal(visible) {
+      this.setState({ modalVisible: visible });
+   }
 
   async identify(user) {
     try {
@@ -139,6 +155,27 @@ export default class App extends React.Component {
               onPress={() => this.flush()}
             />
           </View>
+          <View style={styles.button}>
+            <Button
+              title="All Flags"
+              onPress={() => this.allFlags()}
+            />
+          </View>
+          <View>
+            <Modal animationType = {"slide"} transparent = {false}
+               visible = {this.state.modalVisible}>
+               
+               <View style = {styles.modal}>
+                  <Text>{JSON.stringify(this.state.modalText)}</Text>
+                  
+                  <TouchableHighlight style = {styles.closeModal} onPress = {() => {
+                     this.toggleModal(!this.state.modalVisible)}}>
+                     
+                     <Text>Close All Flags</Text>
+                  </TouchableHighlight>
+               </View>
+            </Modal>
+          </View>
           <Text>Offline</Text>
           <Switch
             value={this.state.isOffline}
@@ -198,11 +235,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  modal: {
+      flex: 1,
+      alignItems: 'center',
+      padding: 100
+   },
   input: {
     height: 35,
     width: 300,
     borderColor: 'gray',
     borderWidth: 1
+  },
+  closeModal: {
+    marginTop: 10,
+    alignItems: 'center',
+    backgroundColor: '#DDDDDD',
+    padding: 10
   },
   button: {
     padding: 10
