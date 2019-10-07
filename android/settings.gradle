@@ -1,5 +1,4 @@
 rootProject.name = 'HelloReactNative'
-include ':launchdarkly-react-native-client-sdk'
-project(':launchdarkly-react-native-client-sdk').projectDir = new File(rootProject.projectDir, '../node_modules/launchdarkly-react-native-client-sdk/android')
+apply from: file("../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesSettingsGradle(settings)
 
 include ':app'
