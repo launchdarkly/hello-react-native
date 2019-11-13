@@ -25,11 +25,11 @@ export default class App extends React.Component {
     try {
       let client = new LDClient();
 
+      //This config object is shown as an example with the defaults, you do not need to specify all of these values in your application.
       let clientConfig =
           { "mobileKey": "YOUR_MOBILE_KEY",
             "baseUri": "https://app.launchdarkly.com",
             "streamUri": "https://clientstream.launchdarkly.com",
-            "eventsUri": "https://mobile.launchdarkly.com",
             "eventsCapacity": 100,
             "eventsFlushIntervalMillis": 30000,
             "connectionTimeoutMillis": 10000,
