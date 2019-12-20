@@ -101,7 +101,7 @@ export default class App extends React.Component {
       return;
     let listener = value => Alert.alert('Listener Callback', value);
     this.state.ldClient.registerFeatureFlagListener(key, listener);
-    this.setState({listeners: {...this.state.listeners, ...{[key]: listener}}})
+    this.setState({listeners: {...this.state.listeners, ...{[key]: listener}}});
   }
 
   async removeListener(key) {
@@ -119,9 +119,14 @@ export default class App extends React.Component {
       <View style={styles.container}>
         <Text style={{fontWeight: 'bold'}}>LaunchDarkly React Native Example</Text>
         <View>
+          <Text>Feature Key:</Text>
+          <TextInput
+            style={styles.input}
+            onChangeText={(text) => this.setState({flagKey: text})}
+            value={this.state.flagKey}
+          />
           <Picker
             selectedValue={this.state.flagType}
-            style={{ height: 50, width: 200 }}
             onValueChange={(itemValue, itemIndex) => this.setState({flagType: itemValue})}>
             <Picker.Item label="Boolean" value="bool" />
             <Picker.Item label="String" value="string" />
@@ -129,12 +134,6 @@ export default class App extends React.Component {
             <Picker.Item label="Float" value="float" />
             <Picker.Item label="JSON" value="json" />
           </Picker>
-          <Text>Feature Key:</Text>
-          <TextInput
-            style={styles.input}
-            onChangeText={(text) => this.setState({flagKey: text})}
-            value={this.state.flagKey}
-          />
           <View style={styles.button}>
             <Button
               title="Evaluate Flag"
@@ -142,7 +141,7 @@ export default class App extends React.Component {
             />
           </View>
         </View>
-        <View>
+        <View style={styles.buttons}>
           <View style={styles.button}>
             <Button
               title="Track"
@@ -254,5 +253,8 @@ const styles = StyleSheet.create({
   },
   button: {
     padding: 10
+  },
+  buttons: {
+    flexDirection: 'row'
   }
 });
