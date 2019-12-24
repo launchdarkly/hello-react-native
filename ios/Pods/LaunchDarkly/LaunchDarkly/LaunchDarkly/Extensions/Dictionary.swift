@@ -78,6 +78,7 @@ extension Optional where Wrapped == [String: Any] {
     public static func == (lhs: [String: Any]?, rhs: [String: Any]?) -> Bool {
         guard let lhs = lhs
         else {
+            // swiftlint:disable unused_optional_binding
             guard let _ = rhs
             else {
                 return true

@@ -8,7 +8,7 @@
 
 import Foundation
 
-//Cache model in use from 2.14.0 up to 4.0.0
+//Cache model in use from 2.14.0 up to 4.2.0
 /*
 [<userKey>: [
     “userKey”: <userKey>,                               //LDUserEnvironment dictionary
@@ -74,7 +74,9 @@ final class DeprecatedCacheModelV5: DeprecatedCache {
                                          variation: featureFlagDictionary.variation,
                                          version: featureFlagDictionary.version,
                                          flagVersion: featureFlagDictionary.flagVersion,
-                                         eventTrackingContext: EventTrackingContext(dictionary: featureFlagDictionary)))
+                                         eventTrackingContext: EventTrackingContext(dictionary: featureFlagDictionary),
+                                         reason: nil,
+                                         trackReason: nil))
         })
         return (featureFlags, cachedUserDictionary.lastUpdated)
     }
@@ -85,32 +87,6 @@ final class DeprecatedCacheModelV5: DeprecatedCache {
             return lastUpdated.isExpired(expirationDate: expirationDate)
         }.map { (userKey, _) in
             return userKey
-        }
-    }
-}
-
-extension Dictionary where Key == String, Value == Any {
-    var environments: [MobileKey: [String: Any]]? {
-        return self[DeprecatedCacheModelV5.CacheKeys.environments] as? [MobileKey: [String: Any]]
-    }
-}
-
-extension Dictionary where Key == MobileKey, Value == [String: Any] {
-    var lastUpdatedDates: [Date]? {
-        return compactMap { (_, userDictionary) in
-            return userDictionary.lastUpdated
-        }
-    }
-}
-
-extension Array where Element == Date {
-    var youngest: Date? {
-        return sorted.last
-    }
-
-    var sorted: [Date] {
-        return self.sorted { (date1, date2) -> Bool in
-            date1.isEarlierThan(date2)
         }
     }
 }

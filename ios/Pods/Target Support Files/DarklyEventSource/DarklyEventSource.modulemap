@@ -1,4 +1,4 @@
-framework module DarklyEventSource {
+module DarklyEventSource {
   umbrella header "DarklyEventSource-umbrella.h"
 
   export *
