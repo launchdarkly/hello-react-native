@@ -42,7 +42,7 @@ export default class App extends React.Component {
             "debugMode": true
           };
 
-      let userConfig = { "key": this.state.userKey };
+      let userConfig = { key: this.state.userKey, anonymous: false };
 
       await client.configure(clientConfig, userConfig);
       this.setState({ldClient: client});
@@ -198,7 +198,7 @@ export default class App extends React.Component {
           <View style={styles.button}>
             <Button
               title="Identify"
-              onPress={() => this.identify({key: this.state.userKey, firstName: 'John', lastName: 'Smith', email: 'john.smith@smith.net', isAnonymous: false, privateAttributeNames: ['random'], customAttributes: {'random': 'random'}})}
+              onPress={() => this.identify({key: this.state.userKey, firstName: 'John', lastName: 'Smith', email: 'john.smith@smith.net', anonymous: false, privateAttributeNames: ['random'], customAttributes: {'random': 'random'}})}
             />
           </View>
         </View>
