@@ -1,8 +1,16 @@
 import React from 'react';
-import { StyleSheet, Text, View,
-         Button, TextInput, Picker,
-         Alert, Switch, Platform,
-         Modal, TouchableHighlight } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  Button,
+  TextInput,
+  Picker,
+  Alert,
+  Switch,
+  Modal,
+  TouchableHighlight,
+} from 'react-native';
 import LDClient from 'launchdarkly-react-native-client-sdk';
 
 export default class App extends React.Component {
@@ -16,8 +24,8 @@ export default class App extends React.Component {
       userKey: 'user key',
       featureFlagListenerKey: '',
       modalVisible: false,
-      modalText: "",
-      listeners: {}
+      modalText: '',
+      listeners: {},
     };
   }
 
@@ -26,27 +34,28 @@ export default class App extends React.Component {
       let client = new LDClient();
 
       //This config object is shown as an example with the defaults, you do not need to specify all of these values in your application.
-      let clientConfig =
-          { "mobileKey": "YOUR_MOBILE_KEY",
-            "baseUri": "https://app.launchdarkly.com",
-            "streamUri": "https://clientstream.launchdarkly.com",
-            "eventsCapacity": 100,
-            "eventsFlushIntervalMillis": 30000,
-            "connectionTimeoutMillis": 10000,
-            "pollingIntervalMillis": 300000,
-            "backgroundPollingIntervalMillis": 3600000,
-            "useReport": false,
-            "stream": true,
-            "disableBackgroundUpdating": false,
-            "offline": false,
-            "debugMode": true
-          };
+      let clientConfig = {
+        mobileKey: 'YOUR_MOBILE_KEY',
+        baseUri: 'https://app.launchdarkly.com',
+        streamUri: 'https://clientstream.launchdarkly.com',
+        eventsCapacity: 100,
+        eventsFlushIntervalMillis: 30000,
+        connectionTimeoutMillis: 10000,
+        pollingIntervalMillis: 300000,
+        backgroundPollingIntervalMillis: 3600000,
+        useReport: false,
+        stream: true,
+        disableBackgroundUpdating: false,
+        offline: false,
+        debugMode: true,
+      };
 
-      let userConfig = { key: this.state.userKey, anonymous: false };
+      let userConfig = {key: this.state.userKey};
 
       await client.configure(clientConfig, userConfig);
+      // eslint-disable-next-line react/no-did-mount-set-state
       this.setState({ldClient: client});
-    } catch(err) {
+    } catch (err) {
       console.error(err);
     }
   }
@@ -54,15 +63,15 @@ export default class App extends React.Component {
   async evalFlag() {
     let res;
     let client = this.state.ldClient;
-    if ( this.state.flagType === "bool" ) {
+    if (this.state.flagType === 'bool') {
       res = await client.boolVariation(this.state.flagKey, false);
-    } else if ( this.state.flagType === "string" ) {
-      res = await client.stringVariation(this.state.flagKey, "");
-    } else if ( this.state.flagType === "int" ) {
+    } else if (this.state.flagType === 'string') {
+      res = await client.stringVariation(this.state.flagKey, '');
+    } else if (this.state.flagType === 'int') {
       res = await client.intVariation(this.state.flagKey, 0);
-    } else if ( this.state.flagType === "float" ) {
+    } else if (this.state.flagType === 'float') {
       res = await client.floatVariation(this.state.flagKey, 0.0);
-    } else if ( this.state.flagType === "json" ) {
+    } else if (this.state.flagType === 'json') {
       let obj = await client.jsonVariation(this.state.flagKey, {});
       res = JSON.stringify(obj);
     }
@@ -76,36 +85,40 @@ export default class App extends React.Component {
 
   async allFlags() {
     let allFlagsResult = this.state.ldClient.allFlags();
-    allFlagsResult.then(values => { 
+    allFlagsResult.then(values => {
       console.log(values);
-      this.setState({ modalText: values });
+      this.setState({modalText: values});
     });
     this.toggleModal(true);
   }
 
   toggleModal(visible) {
-      this.setState({ modalVisible: visible });
-   }
+    this.setState({modalVisible: visible});
+  }
 
   async identify(user) {
     try {
       await this.state.ldClient.identify(user);
       Alert.alert('Identify', 'success');
-    } catch(err) {
+    } catch (err) {
       Alert.alert('Identify', 'fail');
     }
   }
 
   async listen(key) {
-    if (this.state.listeners.hasOwnProperty(key))
+    if (this.state.listeners.hasOwnProperty(key)) {
       return;
+    }
     let listener = value => Alert.alert('Listener Callback', value);
     this.state.ldClient.registerFeatureFlagListener(key, listener);
     this.setState({listeners: {...this.state.listeners, ...{[key]: listener}}});
   }
 
   async removeListener(key) {
-    this.state.ldClient.unregisterFeatureFlagListener(key, this.state.listeners[key]);
+    this.state.ldClient.unregisterFeatureFlagListener(
+      key,
+      this.state.listeners[key],
+    );
     let {[key]: omit, ...newListeners} = this.state.listeners;
     this.setState({listeners: newListeners});
   }
@@ -117,17 +130,22 @@ export default class App extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        <Text style={{fontWeight: 'bold'}}>LaunchDarkly React Native Example</Text>
+        {/* eslint-disable-next-line react-native/no-inline-styles */}
+        <Text style={{fontWeight: 'bold'}}>
+          LaunchDarkly React Native Example
+        </Text>
         <View>
           <Text>Feature Key:</Text>
           <TextInput
             style={styles.input}
-            onChangeText={(text) => this.setState({flagKey: text})}
+            onChangeText={text => this.setState({flagKey: text})}
             value={this.state.flagKey}
           />
           <Picker
             selectedValue={this.state.flagType}
-            onValueChange={(itemValue, itemIndex) => this.setState({flagType: itemValue})}>
+            onValueChange={(itemValue, itemIndex) =>
+              this.setState({flagType: itemValue})
+            }>
             <Picker.Item label="Boolean" value="bool" />
             <Picker.Item label="String" value="string" />
             <Picker.Item label="Integer" value="int" />
@@ -135,50 +153,38 @@ export default class App extends React.Component {
             <Picker.Item label="JSON" value="json" />
           </Picker>
           <View style={styles.button}>
-            <Button
-              title="Evaluate Flag"
-              onPress={() => this.evalFlag()}
-            />
+            <Button title="Evaluate Flag" onPress={() => this.evalFlag()} />
           </View>
         </View>
         <View style={styles.buttons}>
           <View style={styles.button}>
-            <Button
-              title="Track"
-              onPress={() => this.track()}
-            />
+            <Button title="Track" onPress={() => this.track()} />
           </View>
           <View style={styles.button}>
-            <Button
-              title="Flush"
-              onPress={() => this.flush()}
-            />
+            <Button title="Flush" onPress={() => this.flush()} />
           </View>
           <View style={styles.button}>
-            <Button
-              title="All Flags"
-              onPress={() => this.allFlags()}
-            />
+            <Button title="All Flags" onPress={() => this.allFlags()} />
           </View>
           <View>
-            <Modal animationType = {"slide"} transparent = {false}
-               visible = {this.state.modalVisible}>
-               
-               <View style = {styles.modal}>
-                  <Text>{JSON.stringify(this.state.modalText)}</Text>
-                  
-                  <TouchableHighlight style = {styles.closeModal} onPress = {() => {
-                     this.toggleModal(!this.state.modalVisible)}}>
-                     
-                     <Text>Close All Flags</Text>
-                  </TouchableHighlight>
-               </View>
+            <Modal
+              animationType={'slide'}
+              transparent={false}
+              visible={this.state.modalVisible}>
+              <View style={styles.modal}>
+                <Text>{JSON.stringify(this.state.modalText)}</Text>
+                <TouchableHighlight
+                  style={styles.closeModal}
+                  onPress={() => this.toggleModal(!this.state.modalVisible)}>
+                  <Text>Close All Flags</Text>
+                </TouchableHighlight>
+              </View>
             </Modal>
           </View>
           <Text>Offline</Text>
           <Switch
             value={this.state.isOffline}
-            onValueChange={(value) => {
+            onValueChange={value => {
               if (value) {
                 this.state.ldClient.setOffline();
               } else {
@@ -192,13 +198,22 @@ export default class App extends React.Component {
           <Text>User Key:</Text>
           <TextInput
             style={styles.input}
-            onChangeText={(text) => this.setState({userKey: text})}
+            onChangeText={text => this.setState({userKey: text})}
             value={this.state.userKey}
           />
           <View style={styles.button}>
             <Button
               title="Identify"
-              onPress={() => this.identify({key: this.state.userKey, firstName: 'John', lastName: 'Smith', email: 'john.smith@smith.net', anonymous: false, privateAttributeNames: ['random'], customAttributes: {'random': 'random'}})}
+              onPress={() =>
+                this.identify({
+                  key: this.state.userKey,
+                  firstName: 'John',
+                  lastName: 'Smith',
+                  email: 'john.smith@smith.net',
+                  privateAttributeNames: ['random'],
+                  customAttributes: {random: 'random'},
+                })
+              }
             />
           </View>
         </View>
@@ -206,7 +221,7 @@ export default class App extends React.Component {
           <Text>Feature Flag Listener Key:</Text>
           <TextInput
             style={styles.input}
-            onChangeText={(text) => this.setState({featureFlagListenerKey: text})}
+            onChangeText={text => this.setState({featureFlagListenerKey: text})}
             value={this.state.featureFlagListenerKey}
           />
           <View style={styles.button}>
@@ -218,7 +233,9 @@ export default class App extends React.Component {
           <View style={styles.button}>
             <Button
               title="Remove"
-              onPress={() => this.removeListener(this.state.featureFlagListenerKey)}
+              onPress={() =>
+                this.removeListener(this.state.featureFlagListenerKey)
+              }
             />
           </View>
         </View>
@@ -235,26 +252,26 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   modal: {
-      flex: 1,
-      alignItems: 'center',
-      padding: 100
-   },
+    flex: 1,
+    alignItems: 'center',
+    padding: 100,
+  },
   input: {
     height: 35,
     width: 300,
     borderColor: 'gray',
-    borderWidth: 1
+    borderWidth: 1,
   },
   closeModal: {
     marginTop: 10,
     alignItems: 'center',
     backgroundColor: '#DDDDDD',
-    padding: 10
+    padding: 10,
   },
   button: {
-    padding: 10
+    padding: 10,
   },
   buttons: {
-    flexDirection: 'row'
-  }
+    flexDirection: 'row',
+  },
 });
