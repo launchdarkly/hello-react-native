@@ -9,8 +9,7 @@
   "dependencies": {
     "launchdarkly-react-native-client-sdk": "3.0.0",
     "react": "16.9.0",
-    "react-native": "0.61.2",
-    "start": "^5.1.0"
+    "react-native": "0.61.2"
   },
   "devDependencies": {
     "@babel/core": "^7.6.2",
