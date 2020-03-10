@@ -7,7 +7,4 @@ We've built a simple application that demonstrates how LaunchDarkly's SDK works.
 4. Run `npm run start` to start the server to deliver the bundle url. Make sure this is running before you start your application. 
 
 ##### iOS specific build instructions #####
-1. `cd` into `iOS` folder 
-2. run `pod update LaunchDarkly`
-3. run `pod install`
 4. Run your application through the Simulator or on a real device.
