@@ -20,12 +20,12 @@ PODS:
     - DoubleConversion
     - glog
   - glog (0.3.5)
-  - LaunchDarkly (4.4.1):
-    - LaunchDarkly/Core (= 4.4.1)
-  - LaunchDarkly/Core (4.4.1):
+  - LaunchDarkly (4.5.0):
+    - LaunchDarkly/Core (= 4.5.0)
+  - LaunchDarkly/Core (4.5.0):
     - DarklyEventSource (~> 4.1.0)
-  - LaunchdarklyReactNativeClient (3.0.0):
-    - LaunchDarkly (= 4.4.1)
+  - LaunchdarklyReactNativeClient (3.0.1):
+    - LaunchDarkly (= 4.5.0)
     - React
   - RCTRequired (0.61.2)
   - RCTTypeSafety (0.61.2):
@@ -233,7 +233,7 @@ DEPENDENCIES:
   - FBReactNativeSpec (from `../node_modules/react-native/Libraries/FBReactNativeSpec`)
   - Folly (from `../node_modules/react-native/third-party-podspecs/Folly.podspec`)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
-  - LaunchDarkly (= 4.4.1)
+  - LaunchDarkly (= 4.5.0)
   - LaunchdarklyReactNativeClient (from `../node_modules/launchdarkly-react-native-client-sdk/ios`)
   - RCTRequired (from `../node_modules/react-native/Libraries/RCTRequired`)
   - RCTTypeSafety (from `../node_modules/react-native/Libraries/TypeSafety`)
@@ -327,8 +327,8 @@ SPEC CHECKSUMS:
   FBReactNativeSpec: 5a764c60abdc3336a213e5310c40b74741f32839
   Folly: 30e7936e1c45c08d884aa59369ed951a8e68cf51
   glog: 1f3da668190260b06b429bb211bfbee5cd790c28
-  LaunchDarkly: 8c58b23f2f8b8f7a55986c0a91c88b1e7a36eddc
-  LaunchdarklyReactNativeClient: 86049580d5bc3867c7bce15783093d352113234f
+  LaunchDarkly: c2863e664fe089665dc9e68b7084488011fee54a
+  LaunchdarklyReactNativeClient: 259fa72b61a4a9430f0119c0f396a50d3a201e38
   RCTRequired: c639d59ed389cfb1f1203f65c2ea946d8ec586e2
   RCTTypeSafety: dc23fb655d6c77667c78e327bf661bc11e3b8aec
   React: 7e586e5d7bec12b91c1a096826b0fc9ab1da7865
@@ -350,6 +350,6 @@ SPEC CHECKSUMS:
   ReactCommon: 5848032ed2f274fcb40f6b9ec24067787c42d479
   Yoga: 14927e37bd25376d216b150ab2a561773d57911f
 
-PODFILE CHECKSUM: 179a6eff7bb5737c2c6413a625bd835a0d05f608
+PODFILE CHECKSUM: b8ad904a6cf91c7edd9c3328642d1c59edfae9c3
 
 COCOAPODS: 1.8.4
