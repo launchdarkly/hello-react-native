@@ -1,6 +1,6 @@
 {
   "name": "LaunchdarklyReactNativeClient",
-  "version": "3.0.2",
+  "version": "3.2.0",
   "summary": "LaunchdarklyReactNativeClient",
   "description": "LaunchdarklyReactNativeClient",
   "homepage": "https://launchdarkly.com",
@@ -12,7 +12,7 @@
     "author": "support@launchdarkly.com"
   },
   "platforms": {
-    "ios": "9.0"
+    "ios": "10.0"
   },
   "source": {
     "git": "https://github.com/launchdarkly/react-native-client-sdk.git",
