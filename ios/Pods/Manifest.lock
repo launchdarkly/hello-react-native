@@ -1,6 +1,5 @@
 PODS:
   - boost-for-react-native (1.63.0)
-  - DarklyEventSource (4.1.0)
   - DoubleConversion (1.1.6)
   - FBLazyVector (0.63.0)
   - FBReactNativeSpec (0.63.0):
@@ -20,13 +19,14 @@ PODS:
     - DoubleConversion
     - glog
   - glog (0.3.5)
-  - LaunchDarkly (4.5.0):
-    - LaunchDarkly/Core (= 4.5.0)
-  - LaunchDarkly/Core (4.5.0):
-    - DarklyEventSource (~> 4.1.0)
-  - LaunchdarklyReactNativeClient (3.2.0):
-    - LaunchDarkly (= 4.5.0)
+  - LaunchDarkly (5.4.0):
+    - LaunchDarkly/Core (= 5.4.0)
+  - LaunchDarkly/Core (5.4.0):
+    - LDSwiftEventSource (= 1.2.1)
+  - LaunchdarklyReactNativeClient (3.2.2):
+    - LaunchDarkly (= 5.4.0)
     - React
+  - LDSwiftEventSource (1.2.1)
   - RCTRequired (0.63.0)
   - RCTTypeSafety (0.63.0):
     - FBLazyVector (= 0.63.0)
@@ -261,7 +261,7 @@ DEPENDENCIES:
   - FBReactNativeSpec (from `../node_modules/react-native/Libraries/FBReactNativeSpec`)
   - Folly (from `../node_modules/react-native/third-party-podspecs/Folly.podspec`)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
-  - LaunchDarkly (= 4.5.0)
+  - LaunchDarkly (= 5.4.0)
   - LaunchdarklyReactNativeClient (from `../node_modules/launchdarkly-react-native-client-sdk/ios`)
   - RCTRequired (from `../node_modules/react-native/Libraries/RCTRequired`)
   - RCTTypeSafety (from `../node_modules/react-native/Libraries/TypeSafety`)
@@ -290,8 +290,8 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - boost-for-react-native
-    - DarklyEventSource
     - LaunchDarkly
+    - LDSwiftEventSource
 
 EXTERNAL SOURCES:
   DoubleConversion:
@@ -351,14 +351,14 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
-  DarklyEventSource: 71645100c07b7b6f57c4d62227bca3cf3a9b7796
   DoubleConversion: cde416483dac037923206447da6e1454df403714
   FBLazyVector: 6f1045c66f816849b33c4ff28930b611e89059a0
   FBReactNativeSpec: e856d5103d749483f86f53afafd8df4ed8a776bd
   Folly: b73c3869541e86821df3c387eb0af5f65addfab4
   glog: 40a13f7840415b9a77023fbcae0f1e6f43192af3
-  LaunchDarkly: c2863e664fe089665dc9e68b7084488011fee54a
-  LaunchdarklyReactNativeClient: fbe09f204a3a8382d8d30a8cc2241af47ab377d8
+  LaunchDarkly: 0c0cf0a86bd0524d2f809479cc5071d492ec3813
+  LaunchdarklyReactNativeClient: d23ef6729e1d33a4df1c32bd1e2087367ef01723
+  LDSwiftEventSource: 4f48b8d123032c64073a0fabc2d2ce60da27f820
   RCTRequired: e46bb77db03887b3e200d34b08515c804669db99
   RCTTypeSafety: 270fed6675c42f80fb87b47d626ef3cede1505e6
   React: e008906ff1328f9bccb345ff4f7826397ad223fc
@@ -381,6 +381,6 @@ SPEC CHECKSUMS:
   ReactCommon: f63556ee9e41e9802257228237e5e660451a03cf
   Yoga: 7d2edc5b410474191962e6dee88ee67f9b328b6b
 
-PODFILE CHECKSUM: f3c4fa4ae4d09ff5fd556123ceabb6bed3b79504
+PODFILE CHECKSUM: f7cfd3ed9fc51587e7cd4e9989463d63107ffc6b
 
-COCOAPODS: 1.9.3
+COCOAPODS: 1.9.1

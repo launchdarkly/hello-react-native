@@ -2,7 +2,6 @@
 //  LDConfig.swift
 //  LaunchDarkly
 //
-//  Created by Mark Pokorny on 7/12/17. +JMJ
 //  Copyright © 2017 Catamorphic Co. All rights reserved.
 //
 
@@ -17,6 +16,19 @@ public enum LDStreamingMode {
 }
 
 typealias MobileKey = String
+
+
+/**
+ A callback for dynamically setting http headers when connection & reconnecting to a stream
+ or on every poll request. This function should return a copy of the headers recieved with
+ any modifications or additions needed. Removing headers is discouraged as it may cause 
+ requests to fail.
+
+ - parameter url: The endpoint that is being connected to
+ - parameter headers: The default headers that would be used
+ - returns: The headers that will be used in the request
+ */
+public typealias RequestHeaderTransform = (_ url: URL, _ headers: [String: String]) -> [String: String]
 
 /**
  Use LDConfig to configure the LDClient. When initialized, a LDConfig contains the default values which can be changed as needed.
@@ -42,7 +54,7 @@ public struct LDConfig {
         /// The default time interval between event reports. (30 seconds)
         static let eventFlushInterval: TimeInterval = 30.0
         /// The default time interval between feature flag requests. Used only for polling mode. (5 minutes)
-        static let flagPollingInterval: TimeInterval =  300.0
+        static let flagPollingInterval: TimeInterval = 300.0
         /// The default interval between feature flag requests while running in the background. Used only for polling mode. (60 minutes)
         static let backgroundFlagPollingInterval: TimeInterval = 3600.0
 
@@ -67,8 +79,41 @@ public struct LDConfig {
         /// The default setting controlling information logged to the console, and modifying some setting ranges to facilitate debugging. (false)
         static let debugMode = false
         
-        /// The default setting for whether we request evaluation reasons for all flags.
+        /// The default setting for whether we request evaluation reasons for all flags. (false)
         static let evaluationReasons = false
+
+        /// The default setting for the maximum number of locally cached users. (5)
+        static let maxCachedUsers = 5
+
+        /// The default setting for whether sending diagnostic data is disabled. (false)
+        static let diagnosticOptOut = false
+
+        /// The default time interval between sending periodic diagnostic data. (15 minutes)
+        static let diagnosticRecordingInterval: TimeInterval = 900.0
+
+        /// The default wrapper name. (nil)
+        static let wrapperName: String? = nil
+
+        /// The default wrapper version. (nil)
+        static let wrapperVersion: String? = nil
+
+        /// The default secondary mobile keys. ([:])
+        static let secondaryMobileKeys: [String: String] = [:]
+
+        /// The default additional headers that should be added to all HTTP requests from SDK components to LaunchDarkly services
+        static let additionalHeaders: [String: String] = [:]
+
+        /// a closure to allow dynamic changes of headers on connect & reconnect
+        static let headerDelegate: RequestHeaderTransform? = nil
+    
+        /// should anonymous users automatically be aliased when identifying
+        static let autoAliasingOptOut: Bool = false
+    }
+
+    /// Constants relevant to setting up an `LDConfig`
+    public struct Constants {
+        /// The default environment name that must be present in a single or multiple environment configuration
+        public static let primaryEnvironmentName = "default"
     }
 
     /// The minimum values allowed to be set into LDConfig.
@@ -78,22 +123,28 @@ public struct LDConfig {
         struct Production {
             static let flagPollingInterval: TimeInterval = 300.0
             static let backgroundFlagPollingInterval: TimeInterval = 900.0
+            static let diagnosticRecordingInterval: TimeInterval = 300.0
         }
 
         //swiftlint:disable:next nesting
         struct Debug {
             static let flagPollingInterval: TimeInterval = 30.0
             static let backgroundFlagPollingInterval: TimeInterval = 60.0
+            static let diagnosticRecordingInterval: TimeInterval = 60.0
         }
 
         /// The minimum time interval between feature flag requests. Used only for polling mode. (5 minutes)
         public let flagPollingInterval: TimeInterval
         /// The minimum time interval between feature flag requests while running in the background. Used only for polling mode. (15 minutes)
         public let backgroundFlagPollingInterval: TimeInterval
+        /// The minimum time interval between sending periodic diagnostic data. (5 minutes)
+        public let diagnosticRecordingInterval: TimeInterval
 
         init(environmentReporter: EnvironmentReporting = EnvironmentReporter()) {
-            self.flagPollingInterval = environmentReporter.isDebugBuild ? Debug.flagPollingInterval : Production.flagPollingInterval
-            self.backgroundFlagPollingInterval = environmentReporter.isDebugBuild ? Debug.backgroundFlagPollingInterval : Production.backgroundFlagPollingInterval
+            let isDebug = environmentReporter.isDebugBuild
+            self.flagPollingInterval = isDebug ? Debug.flagPollingInterval : Production.flagPollingInterval
+            self.backgroundFlagPollingInterval = isDebug ? Debug.backgroundFlagPollingInterval : Production.backgroundFlagPollingInterval
+            self.diagnosticRecordingInterval = isDebug ? Debug.diagnosticRecordingInterval : Production.diagnosticRecordingInterval
         }
     }
 
@@ -109,8 +160,6 @@ public struct LDConfig {
 
     /// The maximum number of analytics events the LDClient can store. When the LDClient event store reaches the eventCapacity, the SDK discards events until it successfully reports them to LaunchDarkly. (Default: 100)
     public var eventCapacity: Int = Defaults.eventCapacity
-
-    // MARK: Time configuration
 
     /// The timeout interval for flag requests and event reports. (Default: 10 seconds)
     public var connectionTimeout: TimeInterval = Defaults.connectionTimeout
@@ -133,7 +182,7 @@ public struct LDConfig {
             enableBgUpdates = newValue && allowBackgroundUpdates
         }
         get {
-            return enableBgUpdates
+            enableBgUpdates
         }
     }
     private var allowBackgroundUpdates: Bool
@@ -179,21 +228,99 @@ public struct LDConfig {
     
     /// Enables requesting evaluation reasons for all flags. (Default: false)
     public var evaluationReasons: Bool = Defaults.evaluationReasons
+    
+    /// An Integer that tells UserEnvironmentFlagCache the maximum number of users to locally cache. Can be set to -1 for unlimited cached users.
+    public var maxCachedUsers: Int = Defaults.maxCachedUsers
+
+    /**
+     Set to true to opt out of sending diagnostic data. (Default: false)
+
+     Unless the diagnosticOptOut field is set to true, the client will send some diagnostics data to the LaunchDarkly servers in order to assist in the development of future SDK improvements. These diagnostics consist of an initial payload containing some details of the SDK in use, the SDK's configuration, and the platform the SDK is being run on; as well as payloads sent periodically with information on irregular occurrences such as dropped events.
+     */
+    public var diagnosticOptOut: Bool = Defaults.diagnosticOptOut
+
+    private var _diagnosticRecordingInterval: TimeInterval = Defaults.diagnosticRecordingInterval
+    /// The interval between sending periodic diagnostic data. (Default: 15 minutes)
+    public var diagnosticRecordingInterval: TimeInterval {
+        get { _diagnosticRecordingInterval }
+        set {
+            _diagnosticRecordingInterval = max(minima.diagnosticRecordingInterval, newValue)
+        }
+    }
+
+    /// For use by wrapper libraries to set an identifying name for the wrapper being used. This will be sent in the "X-LaunchDarkly-Wrapper" header on requests to the LaunchDarkly servers to allow recording metrics on the usage of wrapper libraries. (Default: nil)
+    public var wrapperName: String? = Defaults.wrapperName
+
+    /// For use by wrapper libraries to report the version of the library in use. If the `wrapperName` has not been set this field will be ignored. Otherwise the version string will be included with the `wrapperName` in the "X-LaunchDarkly-Wrapper" header on requests to the LaunchDarkly servers. (Default: nil)
+    public var wrapperVersion: String? = Defaults.wrapperVersion
+
+    /// Additional headers that should be added to all HTTP requests from SDK components to LaunchDarkly services
+    public var additionalHeaders: [String: String] = [:]
+
+    /* TODO: find a way to make delegates equatable */
+    /// a closure to allow dynamic changes of headers on connect & reconnect
+    public var headerDelegate: RequestHeaderTransform?
 
     /// LaunchDarkly defined minima for selected configurable items
     public let minima: Minima
 
     /// An NSObject wrapper for the Swift LDConfig struct. Intended for use in mixed apps when Swift code needs to pass a config into an Objective-C method.
-    public var objcLdConfig: ObjcLDConfig {
-        return ObjcLDConfig(self)
+    public var objcLdConfig: ObjcLDConfig { ObjcLDConfig(self) }
+
+    let environmentReporter: EnvironmentReporting
+
+    /// should anonymous users automatically be aliased when identifying
+    public var autoAliasingOptOut: Bool = Defaults.autoAliasingOptOut
+
+    /// A Dictionary of identifying names to unique mobile keys for all environments
+    private var mobileKeys: [String: String] {
+        var internalMobileKeys = getSecondaryMobileKeys()
+        internalMobileKeys[LDConfig.Constants.primaryEnvironmentName] = mobileKey
+        return internalMobileKeys
     }
 
+    /**
+     Sets a Dictionary of identifying names to unique mobile keys to access secondary environments in the LDConfig. Throws `LDInvalidArgumentError` if you try to add duplicate keys or put the primary key or name in secondaryMobileKeys.
+
+     - parameter newSecondaryMobileKeys: A Dictionary of String to String.
+     */
+    public mutating func setSecondaryMobileKeys(_ newSecondaryMobileKeys: [String: String]) throws {
+        let mobileKeyPresentInSecondaryMobileKeys = newSecondaryMobileKeys.values.contains(mobileKey)
+        let primaryEnvironmentNamePresentInSecondaryMobileKeys = newSecondaryMobileKeys.keys.contains(LDConfig.Constants.primaryEnvironmentName)
+        let mobileKeysUsedOnlyOnce = Set(newSecondaryMobileKeys.values)
+        if mobileKeyPresentInSecondaryMobileKeys {
+            throw(LDInvalidArgumentError("The primary environment key cannot be in the secondary mobile keys."))
+        }
+        if primaryEnvironmentNamePresentInSecondaryMobileKeys {
+            throw(LDInvalidArgumentError("The primary environment name is not a valid key."))
+        }
+        if mobileKeysUsedOnlyOnce.count != newSecondaryMobileKeys.count {
+            throw(LDInvalidArgumentError("A key can only be used once."))
+        }
+
+        _secondaryMobileKeys = newSecondaryMobileKeys
+    }
+
+    /**
+     Returns a Dictionary of identifying names to unique mobile keys to access secondary environments.
+
+     - returns: A Dictionary of String to String.
+     */
+    public func getSecondaryMobileKeys() -> [String: String] {
+        return _secondaryMobileKeys
+    }
+    
+    /// Internal variable for secondaryMobileKeys computed property
+    private var _secondaryMobileKeys: [String: String]
+    
     //Internal constructor to enable automated testing
     init(mobileKey: String, environmentReporter: EnvironmentReporting) {
         self.mobileKey = mobileKey
+        self.environmentReporter = environmentReporter
         minima = Minima(environmentReporter: environmentReporter)
         allowStreamingMode = environmentReporter.operatingSystem.isStreamingEnabled
         allowBackgroundUpdates = environmentReporter.operatingSystem.isBackgroundEnabled
+        _secondaryMobileKeys = Defaults.secondaryMobileKeys
         if mobileKey.isEmpty {
             Log.debug(typeName(and: #function, appending: ": ") + "mobileKey is empty. The SDK will not operate correctly without a valid mobile key.")
         }
@@ -241,6 +368,13 @@ extension LDConfig: Equatable {
             && lhs.inlineUserInEvents == rhs.inlineUserInEvents
             && lhs.isDebugMode == rhs.isDebugMode
             && lhs.evaluationReasons == rhs.evaluationReasons
+            && lhs.maxCachedUsers == rhs.maxCachedUsers
+            && lhs.diagnosticOptOut == rhs.diagnosticOptOut
+            && lhs.diagnosticRecordingInterval == rhs.diagnosticRecordingInterval
+            && lhs.wrapperName == rhs.wrapperName
+            && lhs.wrapperVersion == rhs.wrapperVersion
+            && lhs.additionalHeaders == rhs.additionalHeaders
+            && lhs.autoAliasingOptOut == rhs.autoAliasingOptOut
     }
 }
 

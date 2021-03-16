@@ -34,7 +34,7 @@ target 'HelloReactNative' do
   pod 'Folly', :podspec => '../node_modules/react-native/third-party-podspecs/Folly.podspec'
 
   #launchdarkly-react-native-client-sdk dependencies
-  pod 'LaunchDarkly', '4.5.0'
+  pod 'LaunchDarkly', '5.4.0'
   
   use_native_modules!
 
