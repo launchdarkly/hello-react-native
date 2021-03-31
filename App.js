@@ -34,9 +34,9 @@ export default class App extends React.Component {
       let client = new LDClient();
 
       //This config object is shown as an example with the defaults, you do not need to specify all of these values in your application.
-      let clientConfig = {
+      let config = {
         mobileKey: 'YOUR_MOBILE_KEY',
-        baseUri: 'https://app.launchdarkly.com',
+        pollUri: 'https://app.launchdarkly.com',
         streamUri: 'https://clientstream.launchdarkly.com',
         eventsCapacity: 100,
         eventsFlushIntervalMillis: 30000,
@@ -50,9 +50,9 @@ export default class App extends React.Component {
         debugMode: true,
       };
 
-      let userConfig = {key: this.state.userKey};
+      let user = {key: this.state.userKey};
 
-      await client.configure(clientConfig, userConfig);
+      await client.configure(config, user);
       // eslint-disable-next-line react/no-did-mount-set-state
       this.setState({ldClient: client});
     } catch (err) {
