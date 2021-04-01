@@ -2,14 +2,13 @@
 //  HTTPHeaders.swift
 //  LaunchDarkly
 //
-//  Created by Mark Pokorny on 9/19/17. +JMJ
 //  Copyright © 2017 Catamorphic Co. All rights reserved.
 //
 
 import Foundation
 
 struct HTTPHeaders {
-    
+
     struct HeaderKey {
         static let authorization = "Authorization"
         static let userAgent = "User-Agent"
@@ -18,6 +17,7 @@ struct HTTPHeaders {
         static let eventSchema = "X-LaunchDarkly-Event-Schema"
         static let ifNoneMatch = "If-None-Match"
         static let eventPayloadIDHeader = "X-LaunchDarkly-Payload-ID"
+        static let sdkWrapper = "X-LaunchDarkly-Wrapper"
     }
 
     struct HeaderValue {
@@ -35,41 +35,71 @@ struct HTTPHeaders {
     static func setFlagRequestEtag(_ etag: String?, for mobileKey: String) {
         flagRequestEtags[mobileKey] = etag
     }
-    
-    let mobileKey: String
-    let systemName: String
-    let sdkVersion: String
-    
+
+    private let mobileKey: String
+    private let additionalHeaders: [String: String]
+    private let authKey: String
+    private let userAgent: String
+    private let wrapperHeaderVal: String?
+
     init(config: LDConfig, environmentReporter: EnvironmentReporting) {
         self.mobileKey = config.mobileKey
-        self.systemName = environmentReporter.systemName
-        self.sdkVersion = environmentReporter.sdkVersion
+        self.additionalHeaders = config.additionalHeaders
+        self.userAgent = "\(environmentReporter.systemName)/\(environmentReporter.sdkVersion)"
+        self.authKey = "\(HeaderValue.apiKey) \(config.mobileKey)"
+
+        if let wrapperName = config.wrapperName {
+            if let wrapperVersion = config.wrapperVersion {
+                wrapperHeaderVal = "\(wrapperName)/\(wrapperVersion)"
+            } else {
+                wrapperHeaderVal = wrapperName
+            }
+        } else {
+            wrapperHeaderVal = nil
+        }
     }
-    
-    private var authKey: String {
-        return "\(HeaderValue.apiKey) \(mobileKey)"
+
+    private var baseHeaders: [String: String] {
+        var headers = [HeaderKey.authorization: authKey,
+                       HeaderKey.userAgent: userAgent]
+
+        if let wrapperHeader = wrapperHeaderVal {
+            headers[HeaderKey.sdkWrapper] = wrapperHeader
+        }
+
+        return headers
     }
-    private var userAgent: String {
-        return "\(systemName)/\(sdkVersion)"
-    }
-    var eventSourceHeaders: [String: String] {
-        return [HeaderKey.authorization: authKey, HeaderKey.userAgent: userAgent]
-    }
+
+    var eventSourceHeaders: [String: String] { withAdditionalHeaders(baseHeaders) }
+
     var flagRequestHeaders: [String: String] {
-        var headers = [HeaderKey.authorization: authKey, HeaderKey.userAgent: userAgent]
+        var headers = baseHeaders
         if let etag = HTTPHeaders.flagRequestEtags[mobileKey] {
             headers[HeaderKey.ifNoneMatch] = etag
         }
-        return headers
+        return withAdditionalHeaders(headers)
     }
+
     var hasFlagRequestEtag: Bool {
-        return HTTPHeaders.flagRequestEtags[mobileKey] != nil
+        HTTPHeaders.flagRequestEtags[mobileKey] != nil
     }
+
     var eventRequestHeaders: [String: String] {
-        return [HeaderKey.authorization: authKey,
-                HeaderKey.userAgent: userAgent,
-                HeaderKey.contentType: HeaderValue.applicationJson,
-                HeaderKey.accept: HeaderValue.applicationJson,
-                HeaderKey.eventSchema: HeaderValue.eventSchema3]
+        var headers = baseHeaders
+        headers[HeaderKey.contentType] = HeaderValue.applicationJson
+        headers[HeaderKey.accept] = HeaderValue.applicationJson
+        headers[HeaderKey.eventSchema] = HeaderValue.eventSchema3
+        return withAdditionalHeaders(headers)
+    }
+
+    var diagnosticRequestHeaders: [String: String] {
+        var headers = baseHeaders
+        headers[HeaderKey.contentType] = HeaderValue.applicationJson
+        headers[HeaderKey.accept] = HeaderValue.applicationJson
+        return withAdditionalHeaders(headers)
+    }
+
+    private func withAdditionalHeaders(_ headers: [String: String]) -> [String: String] {
+        headers.merging(additionalHeaders) { $1 }
     }
 }

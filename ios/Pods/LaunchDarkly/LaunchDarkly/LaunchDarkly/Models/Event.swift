@@ -2,39 +2,47 @@
 //  Event.swift
 //  LaunchDarkly
 //
-//  Created by Mark Pokorny on 7/11/17. +JMJ
 //  Copyright © 2017 Catamorphic Co. All rights reserved.
 //
 
 import Foundation
 
-struct Event { //sdk internal, not publically accessible
+func userType(_ user: LDUser) -> String { 
+    return user.isAnonymous ? "anonymousUser" : "user" 
+}
+
+struct Event {
     enum CodingKeys: String, CodingKey {
-        case key, kind, creationDate, user, userKey, value, defaultValue = "default", variation, version, data, endDate, reason, metricValue
+        case key, previousKey, kind, creationDate, user, userKey, 
+             value, defaultValue = "default", variation, version, 
+             data, endDate, reason, metricValue,
+             // for aliasing
+             contextKind, previousContextKind
     }
 
     enum Kind: String {
-        case feature, debug, identify, custom, summary
+        case feature, debug, identify, custom, summary, alias
 
         static var allKinds: [Kind] {
-            return [feature, debug, identify, custom, summary]
+            [feature, debug, identify, custom, summary, alias]
         }
-        static var alwaysInlineUserKinds: [Kind] {
-            return [identify, debug]
-        }
+        
         var isAlwaysInlineUserKind: Bool {
-            return Kind.alwaysInlineUserKinds.contains(self)
+            [.identify, .debug].contains(self)
         }
-        static var alwaysIncludeValueKinds: [Kind] {
-            return [feature, debug]
-        }
+        
         var isAlwaysIncludeValueKinds: Bool {
-            return Kind.alwaysIncludeValueKinds.contains(self)
+            [.feature, .debug].contains(self)
+        }
+
+        var needsContextKind: Bool { 
+            [.feature, .custom].contains(self)
         }
     }
 
     let kind: Kind
     let key: String?
+    let previousKey: String?
     let creationDate: Date?
     let user: LDUser?
     let value: Any?
@@ -45,9 +53,14 @@ struct Event { //sdk internal, not publically accessible
     let endDate: Date?
     let includeReason: Bool
     let metricValue: Double?
+    let contextKind: String?
+    let previousContextKind: String?
 
     init(kind: Kind = .custom,
          key: String? = nil,
+         previousKey: String? = nil,
+         contextKind: String? = nil,
+         previousContextKind: String? = nil,
          user: LDUser? = nil,
          value: Any? = nil,
          defaultValue: Any? = nil,
@@ -59,6 +72,7 @@ struct Event { //sdk internal, not publically accessible
          metricValue: Double? = nil) {
         self.kind = kind
         self.key = key
+        self.previousKey = previousKey
         self.creationDate = kind == .summary ? nil : Date()
         self.user = user
         self.value = value
@@ -69,17 +83,20 @@ struct Event { //sdk internal, not publically accessible
         self.endDate = endDate
         self.includeReason = includeReason
         self.metricValue = metricValue
+        self.contextKind = contextKind
+        self.previousContextKind = previousContextKind
     }
 
-    // swiftlint:disable function_parameter_count
+    // swiftlint:disable:next function_parameter_count
     static func featureEvent(key: String, value: Any?, defaultValue: Any?, featureFlag: FeatureFlag?, user: LDUser, includeReason: Bool) -> Event {
-        Log.debug(typeName(and: #function) + "key: " + key + ", value: \(String(describing: value)), " + "fallback: \(String(describing: defaultValue) + "reason: \(String(describing: includeReason))"), "
+        Log.debug(typeName(and: #function) + "key: " + key + ", value: \(String(describing: value)), " + "defaultValue: \(String(describing: defaultValue) + "reason: \(String(describing: includeReason))"), "
             + "featureFlag: \(String(describing: featureFlag))")
         return Event(kind: .feature, key: key, user: user, value: value, defaultValue: defaultValue, featureFlag: featureFlag, includeReason: includeReason)
     }
 
+    // swiftlint:disable:next function_parameter_count
     static func debugEvent(key: String, value: Any?, defaultValue: Any?, featureFlag: FeatureFlag, user: LDUser, includeReason: Bool) -> Event {
-        Log.debug(typeName(and: #function) + "key: " + key + ", value: \(String(describing: value)), " + "fallback: \(String(describing: defaultValue) + "reason: \(String(describing: includeReason))"), "
+        Log.debug(typeName(and: #function) + "key: " + key + ", value: \(String(describing: value)), " + "defaultValue: \(String(describing: defaultValue) + "reason: \(String(describing: includeReason))"), "
             + "featureFlag: \(String(describing: featureFlag))")
         return Event(kind: .debug, key: key, user: user, value: value, defaultValue: defaultValue, featureFlag: featureFlag, includeReason: includeReason)
     }
@@ -89,7 +106,7 @@ struct Event { //sdk internal, not publically accessible
         if let data = data {
             guard JSONSerialization.isValidJSONObject([CodingKeys.data.rawValue: data]) //the top level object must be either an array or an object for isValidJSONObject to work correctly
             else {
-                throw JSONSerialization.JSONError.invalidJsonObject
+                throw LDInvalidArgumentError("data is not a JSON convertible value")
             }
         }
         return Event(kind: .custom, key: key, user: user, data: data, metricValue: metricValue)
@@ -103,19 +120,23 @@ struct Event { //sdk internal, not publically accessible
     static func summaryEvent(flagRequestTracker: FlagRequestTracker, endDate: Date = Date()) -> Event? {
         Log.debug(typeName(and: #function))
         guard flagRequestTracker.hasLoggedRequests
-        else {
-            return nil
-        }
+        else { return nil }
         return Event(kind: .summary, flagRequestTracker: flagRequestTracker, endDate: endDate)
+    }
+
+    static func aliasEvent(newUser new: LDUser, oldUser old: LDUser) -> Event {
+        Log.debug("\(typeName(and: #function)) key: \(new.key), previousKey: \(old.key)")
+        return Event(kind: .alias, key: new.key, previousKey: old.key, contextKind: userType(new), previousContextKind: userType(old))
     }
 
     func dictionaryValue(config: LDConfig) -> [String: Any] {
         var eventDictionary = [String: Any]()
         eventDictionary[CodingKeys.kind.rawValue] = kind.rawValue
         eventDictionary[CodingKeys.key.rawValue] = key
+        eventDictionary[CodingKeys.previousKey.rawValue] = previousKey
         eventDictionary[CodingKeys.creationDate.rawValue] = creationDate?.millisSince1970
         if kind.isAlwaysInlineUserKind || config.inlineUserInEvents {
-            eventDictionary[CodingKeys.user.rawValue] = user?.dictionaryValue(includeFlagConfig: false, includePrivateAttributes: false, config: config)
+            eventDictionary[CodingKeys.user.rawValue] = user?.dictionaryValue(includePrivateAttributes: false, config: config)
         } else {
             eventDictionary[CodingKeys.userKey.rawValue] = user?.key
         }
@@ -128,13 +149,22 @@ struct Event { //sdk internal, not publically accessible
         eventDictionary[CodingKeys.version.rawValue] = featureFlag?.flagVersion ?? featureFlag?.version
         eventDictionary[CodingKeys.data.rawValue] = data
         if let flagRequestTracker = flagRequestTracker {
-            eventDictionary.merge(flagRequestTracker.dictionaryValue) { (_, trackerItem) in
-                return trackerItem  //This should never happen because the eventDictionary does not use any conflicting keys with the flagRequestTracker
+            eventDictionary.merge(flagRequestTracker.dictionaryValue) { _, trackerItem in
+                trackerItem  // This should never happen because the eventDictionary does not use any conflicting keys with the flagRequestTracker
             }
         }
         eventDictionary[CodingKeys.endDate.rawValue] = endDate?.millisSince1970
         eventDictionary[CodingKeys.reason.rawValue] = includeReason || featureFlag?.trackReason ?? false ? featureFlag?.reason : nil
         eventDictionary[CodingKeys.metricValue.rawValue] = metricValue
+
+        if kind.needsContextKind && (user?.isAnonymous == true) {
+            eventDictionary[CodingKeys.contextKind.rawValue] = "anonymousUser"
+        }
+
+        if kind == .alias {
+            eventDictionary[CodingKeys.contextKind.rawValue] = self.contextKind
+            eventDictionary[CodingKeys.previousContextKind.rawValue] = self.previousContextKind
+        }
 
         return eventDictionary
     }
@@ -142,77 +172,15 @@ struct Event { //sdk internal, not publically accessible
 
 extension Array where Element == Event {
     func dictionaryValues(config: LDConfig) -> [[String: Any]] {
-        return self.map { (event) in
-            event.dictionaryValue(config: config)
-        }
+        self.map { $0.dictionaryValue(config: config) }
     }
 }
 
 extension Array where Element == [String: Any] {
     var jsonData: Data? {
         guard JSONSerialization.isValidJSONObject(self)
-        else {
-            return nil
-        }
+        else { return nil }
         return try? JSONSerialization.data(withJSONObject: self, options: [])
-    }
-
-    func contains(_ eventDictionary: [String: Any]) -> Bool {
-        return !self.filter { (element) in
-            element.matches(eventDictionary: eventDictionary)
-        }.isEmpty
-    }
-}
-
-extension Dictionary where Key == String, Value == Any {
-    private var eventKindString: String? {
-        return self[Event.CodingKeys.kind.rawValue] as? String
-    }
-    var eventKind: Event.Kind? {
-        guard let eventKindString = eventKindString
-        else {
-            return nil
-        }
-        return Event.Kind(rawValue: eventKindString)
-    }
-    var eventKey: String? {
-        return self[Event.CodingKeys.key.rawValue] as? String
-    }
-    var eventCreationDateMillis: Int64? {
-        return self[Event.CodingKeys.creationDate.rawValue] as? Int64
-    }
-    var eventEndDate: Date? {
-        return Date(millisSince1970: self[Event.CodingKeys.endDate.rawValue] as? Int64)
-    }
-
-    func matches(eventDictionary other: [String: Any]) -> Bool {
-        guard let kind = eventKind
-        else {
-            return false
-        }
-        if kind == .summary {
-            guard kind == other.eventKind,
-                let eventEndDate = eventEndDate, eventEndDate.isWithin(0.001, of: other.eventEndDate)
-            else {
-                return false
-            }
-            return true
-        }
-        guard let key = eventKey, let creationDateMillis = eventCreationDateMillis,
-            let otherKey = other.eventKey, let otherCreationDateMillis = other.eventCreationDateMillis
-        else {
-            return false
-        }
-        return key == otherKey && creationDateMillis == otherCreationDateMillis
-    }
-}
-
-extension Event: Equatable {
-    static func == (lhs: Event, rhs: Event) -> Bool {
-        if lhs.kind == .summary {
-            return lhs.kind == rhs.kind && lhs.endDate?.isWithin(0.001, of: rhs.endDate) ?? false
-        }
-        return lhs.kind == rhs.kind && lhs.key == rhs.key && lhs.creationDate == rhs.creationDate
     }
 }
 

@@ -2,7 +2,6 @@
 //  Any.swift
 //  LaunchDarkly
 //
-//  Created by Mark Pokorny on 11/9/17. +JMJ
 //  Copyright © 2017 Catamorphic Co. All rights reserved.
 //
 
@@ -10,60 +9,71 @@ import Foundation
 
 struct AnyComparer {
     private init() { }
-    
+
     //If editing this method to add classes here, update AnySpec with tests that verify the comparison for that class
     //swiftlint:disable:next cyclomatic_complexity
-    public static func isEqual(_ value: Any, to other: Any) -> Bool {
+    static func isEqual(_ value: Any, to other: Any) -> Bool {
         switch (value, other) {
-        case (let value as Bool, let other as Bool):
+        case let (value, other) as (Bool, Bool):
             if value != other {
                 return false
             }
-        case (let value as Int, let other as Int):
+        case let (value, other) as (Int, Int):
             if value != other {
                 return false
             }
-        case (let value as Int, let other as Double):
+        case let (value, other) as (Int, Double):
             if Double(value) != other {
                 return false
             }
-        case (let value as Double, let other as Int):
+        case let (value, other) as (Double, Int):
             if value != Double(other) {
                 return false
             }
-        case (let value as Int64, let other as Int64):
+        case let (value, other) as (Int64, Int64):
             if value != other {
                 return false
             }
-        case (let value as Int64, let other as Double):
+        case let (value, other) as (Int64, Double):
             if Double(value) != other {
                 return false
             }
-        case (let value as Double, let other as Int64):
+        case let (value, other) as (Double, Int64):
             if value != Double(other) {
                 return false
             }
-        case (let value as Double, let other as Double):
+        case let (value, other) as (Double, Double):
             if value != other {
                 return false
             }
-        case (let value as String, let other as String):
+        case let (value, other) as (String, String):
             if value != other {
                 return false
             }
-        case (let value as [Any], let other as [Any]):
-            if !value.isEqual(to: other) {
+        case let (value, other) as ([Any], [Any]):
+            if value.count != other.count {
                 return false
             }
-        case (let value as [String: Any], let other as [String: Any]):
-            if !value.isEqual(to: other) {
+            for index in 0..<value.count where !AnyComparer.isEqual(value[index], to: other[index]) {
                 return false
             }
-        case (let value as Date, let other as Date):
+        case let (value, other) as ([String: Any], [String: Any]):
+            if value.count != other.count {
+                return false
+            }
+            if value.keys.sorted() != other.keys.sorted() {
+                return false
+            }
+            for key in value.keys {
+                if !AnyComparer.isEqual(value[key], to: other[key]) {
+                    return false
+                }
+            }
+        case let (value, other) as (Date, Date):
             if value != other {
                 return false
             }
-        case (let value as FeatureFlag, let other as FeatureFlag):
+        case let (value, other) as (FeatureFlag, FeatureFlag):
             if value != other {
                 return false
             }
@@ -74,7 +84,7 @@ struct AnyComparer {
         return true
     }
 
-    public static func isEqual(_ value: Any?, to other: Any?) -> Bool {
+    static func isEqual(_ value: Any?, to other: Any?) -> Bool {
         guard let nonNilValue = value, let nonNilOther = other
         else {
             return value == nil && other == nil
@@ -82,7 +92,7 @@ struct AnyComparer {
         return isEqual(nonNilValue, to: nonNilOther)
     }
 
-    public static func isEqual(_ value: Any, to other: Any?) -> Bool {
+    static func isEqual(_ value: Any, to other: Any?) -> Bool {
         guard let other = other
         else {
             return false
@@ -90,7 +100,7 @@ struct AnyComparer {
         return isEqual(value, to: other)
     }
 
-    public static func isEqual(_ value: Any?, to other: Any) -> Bool {
+    static func isEqual(_ value: Any?, to other: Any) -> Bool {
         guard let value = value
         else {
             return false
