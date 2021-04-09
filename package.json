@@ -7,7 +7,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "launchdarkly-react-native-client-sdk": "launchdarkly/react-native-client-sdk-private#jc/ch102829/rn-0.64",
+    "launchdarkly-react-native-client-sdk": "^4.0.0",
     "react": "17.0.1",
     "react-native": "0.64.0"
   },
