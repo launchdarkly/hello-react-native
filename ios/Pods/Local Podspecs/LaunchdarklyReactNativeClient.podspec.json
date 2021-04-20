@@ -1,6 +1,6 @@
 {
   "name": "LaunchdarklyReactNativeClient",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "summary": "LaunchdarklyReactNativeClient",
   "description": "LaunchdarklyReactNativeClient",
   "homepage": "https://launchdarkly.com",
@@ -25,7 +25,7 @@
 
     ],
     "LaunchDarkly": [
-      "5.4.0"
+      "5.4.1"
     ]
   },
   "swift_version": "5.0"
