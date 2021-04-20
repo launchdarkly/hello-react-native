@@ -43,16 +43,16 @@
   "script_phases": {
     "name": "Generate Specs",
     "input_files": [
-      "/Users/joecieslik/code/hello-react-native/node_modules/react-native/scripts/../Libraries"
+      "../../node_modules/react-native/scripts/../Libraries"
     ],
     "output_files": [
       "$(DERIVED_FILE_DIR)/codegen-FBReactNativeSpec.log",
-      "/Users/joecieslik/code/hello-react-native/node_modules/react-native/scripts/../React/FBReactNativeSpec/FBReactNativeSpec/FBReactNativeSpec.h",
-      "/Users/joecieslik/code/hello-react-native/node_modules/react-native/scripts/../React/FBReactNativeSpec/FBReactNativeSpec/FBReactNativeSpec-generated.mm"
+      "../../node_modules/react-native/scripts/../React/FBReactNativeSpec/FBReactNativeSpec/FBReactNativeSpec.h",
+      "../../node_modules/react-native/scripts/../React/FBReactNativeSpec/FBReactNativeSpec/FBReactNativeSpec-generated.mm"
     ],
-    "script": "set -o pipefail\n\nbash -l -c 'SRCS_DIR=/Users/joecieslik/code/hello-react-native/node_modules/react-native/scripts/../Libraries CODEGEN_MODULES_OUTPUT_DIR=/Users/joecieslik/code/hello-react-native/node_modules/react-native/scripts/../React/FBReactNativeSpec/FBReactNativeSpec CODEGEN_MODULES_LIBRARY_NAME=FBReactNativeSpec /Users/joecieslik/code/hello-react-native/node_modules/react-native/scripts/generate-specs.sh' 2>&1 | tee \"${SCRIPT_OUTPUT_FILE_0}\"",
+    "script": "set -o pipefail\n\nbash -l -c 'SRCS_DIR=../../node_modules/react-native/scripts/../Libraries CODEGEN_MODULES_OUTPUT_DIR=../../node_modules/react-native/scripts/../React/FBReactNativeSpec/FBReactNativeSpec CODEGEN_MODULES_LIBRARY_NAME=FBReactNativeSpec ../../node_modules/react-native/scripts/generate-specs.sh' 2>&1 | tee \"${SCRIPT_OUTPUT_FILE_0}\"",
     "execution_position": "before_compile",
     "show_env_vars_in_log": true
   },
-  "prepare_command": "mkdir -p /Users/joecieslik/code/hello-react-native/node_modules/react-native/scripts/../React/FBReactNativeSpec/FBReactNativeSpec && touch /Users/joecieslik/code/hello-react-native/node_modules/react-native/scripts/../React/FBReactNativeSpec/FBReactNativeSpec/FBReactNativeSpec.h /Users/joecieslik/code/hello-react-native/node_modules/react-native/scripts/../React/FBReactNativeSpec/FBReactNativeSpec/FBReactNativeSpec-generated.mm"
+  "prepare_command": "mkdir -p ../../node_modules/react-native/scripts/../React/FBReactNativeSpec/FBReactNativeSpec && touch ../../node_modules/react-native/scripts/../React/FBReactNativeSpec/FBReactNativeSpec/FBReactNativeSpec.h ../../node_modules/react-native/scripts/../React/FBReactNativeSpec/FBReactNativeSpec/FBReactNativeSpec-generated.mm"
 }
