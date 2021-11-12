@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "launchdarkly-react-native-client-sdk": "^5.1.0",
-    "react": "17.0.1",
+    "react": "17.0.2",
     "react-native": "0.65.1"
   },
   "devDependencies": {
