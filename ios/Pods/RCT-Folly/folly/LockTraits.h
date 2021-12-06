@@ -86,7 +86,7 @@ class LockInterfaceDispatcher {
  private:
   // assert that the mutex type has basic lock and unlock functions
   static_assert(
-      folly::is_invocable<member::lock_invoker, Mutex>::value,
+      folly::is_invocable_v<member::lock_invoker, Mutex>,
       "The mutex type must support lock and unlock functions");
 
   using duration = std::chrono::milliseconds;
@@ -94,11 +94,11 @@ class LockInterfaceDispatcher {
  public:
   static constexpr bool has_lock_unique = true;
   static constexpr bool has_lock_timed =
-      folly::is_invocable<member::try_lock_for_invoker, Mutex, duration>::value;
+      folly::is_invocable_v<member::try_lock_for_invoker, Mutex, duration>;
   static constexpr bool has_lock_shared =
-      folly::is_invocable<member::lock_shared_invoker, Mutex>::value;
+      folly::is_invocable_v<member::lock_shared_invoker, Mutex>;
   static constexpr bool has_lock_upgrade =
-      folly::is_invocable<member::lock_upgrade_invoker, Mutex>::value;
+      folly::is_invocable_v<member::lock_upgrade_invoker, Mutex>;
 };
 
 /**
@@ -120,23 +120,17 @@ struct LockTraitsImpl<Mutex, MutexLevel::UNIQUE, false> {
   /**
    * Acquire the lock exclusively.
    */
-  static void lock(Mutex& mutex) {
-    mutex.lock();
-  }
+  static void lock(Mutex& mutex) { mutex.lock(); }
 
   /**
    * Release an exclusively-held lock.
    */
-  static void unlock(Mutex& mutex) {
-    mutex.unlock();
-  }
+  static void unlock(Mutex& mutex) { mutex.unlock(); }
 
   /**
    * Try to acquire the mutex
    */
-  static bool try_lock(Mutex& mutex) {
-    return mutex.try_lock();
-  }
+  static bool try_lock(Mutex& mutex) { return mutex.try_lock(); }
 };
 
 /**
@@ -153,23 +147,17 @@ struct LockTraitsImpl<Mutex, MutexLevel::SHARED, false>
   /**
    * Acquire the lock in shared (read) mode.
    */
-  static void lock_shared(Mutex& mutex) {
-    mutex.lock_shared();
-  }
+  static void lock_shared(Mutex& mutex) { mutex.lock_shared(); }
 
   /**
    * Release a lock held in shared mode.
    */
-  static void unlock_shared(Mutex& mutex) {
-    mutex.unlock_shared();
-  }
+  static void unlock_shared(Mutex& mutex) { mutex.unlock_shared(); }
 
   /**
    * Try to acquire the mutex in shared mode
    */
-  static bool try_lock_shared(Mutex& mutex) {
-    return mutex.try_lock_shared();
-  }
+  static bool try_lock_shared(Mutex& mutex) { return mutex.try_lock_shared(); }
 };
 
 /**
@@ -210,16 +198,12 @@ struct LockTraitsImpl<Mutex, MutexLevel::UPGRADE, false>
   /**
    * Acquire the lock in upgradable mode.
    */
-  static void lock_upgrade(Mutex& mutex) {
-    mutex.lock_upgrade();
-  }
+  static void lock_upgrade(Mutex& mutex) { mutex.lock_upgrade(); }
 
   /**
    * Release the lock in upgrade mode
    */
-  static void unlock_upgrade(Mutex& mutex) {
-    mutex.unlock_upgrade();
-  }
+  static void unlock_upgrade(Mutex& mutex) { mutex.unlock_upgrade(); }
 
   /**
    * Try and acquire the lock in upgrade mode
@@ -271,8 +255,7 @@ struct LockTraitsImpl<Mutex, MutexLevel::UNIQUE, true>
    */
   template <class Rep, class Period>
   static bool try_lock_for(
-      Mutex& mutex,
-      const std::chrono::duration<Rep, Period>& timeout) {
+      Mutex& mutex, const std::chrono::duration<Rep, Period>& timeout) {
     return mutex.try_lock_for(timeout);
   }
 };
@@ -297,8 +280,7 @@ struct LockTraitsImpl<Mutex, MutexLevel::SHARED, true>
    */
   template <class Rep, class Period>
   static bool try_lock_for(
-      Mutex& mutex,
-      const std::chrono::duration<Rep, Period>& timeout) {
+      Mutex& mutex, const std::chrono::duration<Rep, Period>& timeout) {
     return mutex.try_lock_for(timeout);
   }
 
@@ -309,8 +291,7 @@ struct LockTraitsImpl<Mutex, MutexLevel::SHARED, true>
    */
   template <class Rep, class Period>
   static bool try_lock_shared_for(
-      Mutex& mutex,
-      const std::chrono::duration<Rep, Period>& timeout) {
+      Mutex& mutex, const std::chrono::duration<Rep, Period>& timeout) {
     return mutex.try_lock_shared_for(timeout);
   }
 };
@@ -330,8 +311,7 @@ struct LockTraitsImpl<Mutex, MutexLevel::UPGRADE, true>
    */
   template <class Rep, class Period>
   static bool try_lock_upgrade_for(
-      Mutex& mutex,
-      const std::chrono::duration<Rep, Period>& timeout) {
+      Mutex& mutex, const std::chrono::duration<Rep, Period>& timeout) {
     return mutex.try_lock_upgrade_for(timeout);
   }
 
@@ -342,8 +322,7 @@ struct LockTraitsImpl<Mutex, MutexLevel::UPGRADE, true>
    */
   template <class Rep, class Period>
   static bool try_unlock_upgrade_and_lock_for(
-      Mutex& mutex,
-      const std::chrono::duration<Rep, Period>& timeout) {
+      Mutex& mutex, const std::chrono::duration<Rep, Period>& timeout) {
     return mutex.try_unlock_upgrade_and_lock_for(timeout);
   }
 };
@@ -481,8 +460,7 @@ struct LockPolicyExclusive : detail::UnlockPolicyExclusive<LockTraits> {
   }
   template <class Mutex, class Rep, class Period>
   static bool try_lock_for(
-      Mutex& mutex,
-      const std::chrono::duration<Rep, Period>& timeout) {
+      Mutex& mutex, const std::chrono::duration<Rep, Period>& timeout) {
     return LockTraits<Mutex>::try_lock_for(mutex, timeout);
   }
 };
@@ -501,8 +479,7 @@ struct LockPolicyShared : detail::UnlockPolicyShared<LockTraits> {
   }
   template <class Mutex, class Rep, class Period>
   static bool try_lock_for(
-      Mutex& mutex,
-      const std::chrono::duration<Rep, Period>& timeout) {
+      Mutex& mutex, const std::chrono::duration<Rep, Period>& timeout) {
     return LockTraits<Mutex>::try_lock_shared_for(mutex, timeout);
   }
 };
@@ -524,8 +501,7 @@ struct LockPolicyUpgrade : detail::UnlockPolicyUpgrade<LockTraits> {
   }
   template <class Mutex, class Rep, class Period>
   static bool try_lock_for(
-      Mutex& mutex,
-      const std::chrono::duration<Rep, Period>& timeout) {
+      Mutex& mutex, const std::chrono::duration<Rep, Period>& timeout) {
     return LockTraits<Mutex>::try_lock_upgrade_for(mutex, timeout);
   }
 };
@@ -590,8 +566,7 @@ struct LockPolicyFromUpgradeToExclusive : LockPolicyExclusive {
   }
   template <class Mutex, class Rep, class Period>
   static bool try_lock_for(
-      Mutex& mutex,
-      const std::chrono::duration<Rep, Period>& timeout) {
+      Mutex& mutex, const std::chrono::duration<Rep, Period>& timeout) {
     return LockTraits<Mutex>::try_unlock_upgrade_and_lock_for(mutex, timeout);
   }
 };
@@ -611,8 +586,7 @@ struct LockPolicyFromExclusiveToUpgrade : LockPolicyUpgrade {
   }
   template <class Mutex, class Rep, class Period>
   static bool try_lock_for(
-      Mutex& mutex,
-      const std::chrono::duration<Rep, Period>&) {
+      Mutex& mutex, const std::chrono::duration<Rep, Period>&) {
     LockTraits<Mutex>::unlock_and_lock_upgrade(mutex);
 
     // downgrade should be non blocking and should succeed
@@ -635,8 +609,7 @@ struct LockPolicyFromUpgradeToShared : LockPolicyShared {
   }
   template <class Mutex, class Rep, class Period>
   static bool try_lock_for(
-      Mutex& mutex,
-      const std::chrono::duration<Rep, Period>&) {
+      Mutex& mutex, const std::chrono::duration<Rep, Period>&) {
     LockTraits<Mutex>::unlock_upgrade_and_lock_shared(mutex);
 
     // downgrade should be non blocking and should succeed
@@ -659,8 +632,7 @@ struct LockPolicyFromExclusiveToShared : LockPolicyShared {
   }
   template <class Mutex, class Rep, class Period>
   static bool try_lock_for(
-      Mutex& mutex,
-      const std::chrono::duration<Rep, Period>&) {
+      Mutex& mutex, const std::chrono::duration<Rep, Period>&) {
     LockTraits<Mutex>::unlock_and_lock_shared(mutex);
 
     // downgrade should be non blocking and should succeed
