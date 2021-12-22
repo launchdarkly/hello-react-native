@@ -3,25 +3,16 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "start": "npx react-native start",
-    "test": "jest"
+    "android": "npx react-native run-android",
+    "ios": "npx react-native run-ios"
   },
   "dependencies": {
-    "launchdarkly-react-native-client-sdk": "^5.0.0",
+    "launchdarkly-react-native-client-sdk": ">=4.1.0 <6.0.0",
     "react": "17.0.1",
     "react-native": "0.64.1"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
-    "@babel/runtime": "^7.12.5",
-    "@react-native-community/eslint-config": "^2.0.0",
-    "babel-jest": "^26.6.3",
-    "eslint": "7.14.0",
-    "jest": "^26.6.3",
-    "metro-react-native-babel-preset": "^0.64.0",
-    "react-test-renderer": "17.0.1"
-  },
-  "jest": {
-    "preset": "react-native"
+    "@babel/runtime": "^7.12.5"
   }
 }
