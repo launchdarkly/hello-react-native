@@ -1,0 +1,27 @@
+{
+  "name": "helloreactnative",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "android": "react-native run-android",
+    "ios": "react-native run-ios",
+    "start": "react-native start",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "launchdarkly-react-native-client-sdk": "^6.1.3",
+    "react": "17.0.2",
+    "react-native": "0.68.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.12.9",
+    "@babel/runtime": "^7.12.5",
+    "@react-native-community/eslint-config": "^2.0.0",
+    "eslint": "^7.32.0",
+    "metro-react-native-babel-preset": "^0.67.0",
+    "react-test-renderer": "17.0.2"
+  },
+  "jest": {
+    "preset": "react-native"
+  }
+}
