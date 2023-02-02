@@ -6,15 +6,14 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import type {Node} from 'react';
+import type { Node } from 'react';
 import { SafeAreaView, StatusBar, Text } from 'react-native';
 
 import LDClient from 'launchdarkly-react-native-client-sdk';
 
 const App: () => Node = () => {
-
-  const mobileKey = '';
-  const flagKey = 'my-boolean-flag';
+  const mobileKey = 'MOBILE_KEY';
+  const flagKey = 'dev-test-flag';
 
   const [client, setClient] = useState(null);
   const [flagValue, setFlagValue] = useState(null);
