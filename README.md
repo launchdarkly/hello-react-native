@@ -6,8 +6,9 @@ We've built a simple application that demonstrates how LaunchDarkly's SDK works.
 
 1. Open the `hello-react-native` directory
 2. Copy the mobile key from your account settings page from your LaunchDarkly dashboard into `App.js`.
-3. Run `yarn` to install dependencies.
-4. For iOS, set up the native module dependencies by running `npx pod-install`.
+3. Set flagKey to a valid flag key in your project/environment.
+4. Run `yarn` to install dependencies.
+5. For iOS, set up the native module dependencies by running `npx pod-install`.
 
 ## Running
 

@@ -13,30 +13,26 @@ import LDClient from 'launchdarkly-react-native-client-sdk';
 
 const App: () => Node = () => {
   const mobileKey = 'MOBILE_KEY';
-  const flagKey = 'my-boolean-flag';
+  const flagKey = 'dev-test-flag';
 
   const [client, setClient] = useState(null);
   const [flagValue, setFlagValue] = useState(null);
 
   async function evalFlag() {
-    let res = await client.boolVariation(flagKey, false);
+    let res = await client.boolVariationDetail(flagKey, false);
+    console.log('This is the reason from the SDK: ' + JSON.stringify(res));
+
     if (res != flagValue) {
-      setFlagValue(res);
+      setFlagValue(JSON.stringify(res));
     }
   }
 
   useEffect(() => {
     async function initializeClient() {
       let ldClient = new LDClient();
-      let config = {
-        mobileKey: mobileKey,
-        application: {
-          id: 'hello-ld-rn-app',
-          version: '0.0.1',
-        },
-        debugMode: true,
-      };
-      let user = { key: 'example-user-key' };
+      let config = { mobileKey, debugMode: true, evaluationReasons: true };
+      let user = { key: 'test-key', anonymous: true };
+
       try {
         await ldClient.configure(config, user);
       } catch (err) {
