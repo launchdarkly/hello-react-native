@@ -28,7 +28,7 @@ echo "______________________REACT NATIVE CLEAN ALL________________ "
 rm -rf node_modules && yarn
 
 # clean-pods
-cd ios/ && rm -rf Pods && pod install && cd ../
+cd ios/ &&  pod cache clean --all && pod deintegrate && rm -rf Pods && rm -rf Podfile.lock && pod install && cd ../
 
 # clean-ios
 rm -rf ios/build && rm -rf ~/Library/Developer/Xcode/DerivedData && rm -rf ./ios/DerivedData
