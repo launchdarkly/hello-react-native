@@ -7,7 +7,8 @@
     "ios": "react-native run-ios",
     "start": "react-native start",
     "lint": "eslint .",
-    "prettier": "prettier --write '**/*.@(js|ts|tsx|json|css|md|mdx)'"
+    "prettier": "prettier --write '**/*.@(js|ts|tsx|json|css|md|mdx)'",
+    "clean-all": "./clean-all.sh"
   },
   "dependencies": {
     "launchdarkly-react-native-client-sdk": "^7.1.1",
@@ -15,12 +16,12 @@
     "react-native": "0.70.7"
   },
   "devDependencies": {
-    "@babel/core": "^7.12.9",
-    "@babel/runtime": "^7.12.5",
+    "@babel/core": "^7.21.0",
+    "@babel/runtime": "^7.21.0",
     "@react-native-community/eslint-config": "^3.2.0",
     "eslint": "^8.35.0",
     "eslint-plugin-prettier": "^4.2.1",
-    "metro-react-native-babel-preset": "^0.67.0",
+    "metro-react-native-babel-preset": "^0.76.0",
     "prettier": "^2.8.4",
     "react-test-renderer": "18.2.0"
   },
