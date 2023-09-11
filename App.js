@@ -31,7 +31,7 @@ const App: () => Node = () => {
     async function initializeClient() {
       let ldClient = new LDClient();
       let config = { mobileKey, debugMode: true, evaluationReasons: true };
-      let user = { key: 'test-key', anonymous: true };
+      let user = { kind: 'user', key: 'test-key' };
 
       try {
         await ldClient.configure(config, user);

@@ -11,9 +11,9 @@
     "clean-all": "./clean-all.sh"
   },
   "dependencies": {
-    "launchdarkly-react-native-client-sdk": "^7.1.1",
-    "react": "18.2.0",
-    "react-native": "0.70.7"
+    "launchdarkly-react-native-client-sdk": "^8.0.0",
+    "react": "^18.2.0",
+    "react-native": "^0.72.4"
   },
   "devDependencies": {
     "@babel/core": "^7.21.0",
