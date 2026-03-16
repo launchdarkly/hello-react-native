@@ -1,3 +1,9 @@
+# This example is deprecated
+
+This repository contains an example for the `launchdarkly-react-native-client` SDK, which has been replaced by the `@launchdarkly/react-native-client` SDK.
+
+For examples using the `@launchdarkly/react-native-client` version of the SDK please refer to the react-native SDK in the (js-core repository)[https://github.com/launchdarkly/js-core].
+
 # LaunchDarkly Sample React Native Application
 
 We've built a simple application that demonstrates how LaunchDarkly's SDK works. Below, you'll find the basic build procedure, but for more comprehensive instructions, you can visit your [Quickstart page](https://app.launchdarkly.com/quickstart#/).
